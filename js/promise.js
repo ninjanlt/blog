@@ -8,10 +8,10 @@
  */
 
 // Promise 作用：支持链式调用，解决了地狱回调的问题
-let promise = new Promise((resolve,reject)=>{
-    setTimeout(()=>{
+let promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
         reject('失败了');
-    },1000)
+    }, 1000)
 });
 promise.then(
     value => console.log(value),
@@ -19,66 +19,66 @@ promise.then(
 )
 
 // promise.prototype.finally 方法
-new Promise((resolve,reject)=>{
-    setTimeout(()=> reject('失败了'),2000)
+new Promise((resolve, reject) => {
+    setTimeout(() => reject('失败了'), 2000)
 })
-.finally('总是会执行的str')
-.then(
-    result => console.log(result)
-    error => console.log(error)
-)
+    .finally('总是会执行的str')
+    .then(
+        result => console.log(result),
+        error => console.log(error)
+    )
 
 // promise.prototype.catch 方法
-new Promise((resolve,reject)=>{
-    setTimeout(()=>{
+new Promise((resolve, reject) => {
+    setTimeout(() => {
         reject(1)
-    },1000)
+    }, 1000)
 }).catch(
     // 捕获错误
-    reason => console.log('onRejected',reason)
+    reason => console.log('onRejected', reason)
 )
 
 // Promise.all 一败则败
-let p1 = new Promise((resolve,reject)=>{
-    setTimeout(()=>{
+let p1 = new Promise((resolve, reject) => {
+    setTimeout(() => {
         resolve(1);
-    },2000)
+    }, 2000)
 });
 let p2 = Promise.reject(2);
 let p3 = Promise.resolve(3);
 
-let p4 = Promise.all([p1,p2,p3]);
+let p4 = Promise.all([p1, p2, p3]);
 p4.then(
-    value => console.log('成功',value),
-    reason => console.log('失败',reason)
+    value => console.log('成功', value),
+    reason => console.log('失败', reason)
 )
 
 // Promise.race 竞速原则
 const p = Promise.race([
     fetch('/resource-that-may-take-a-while'),
     new Promise(function (resolve, reject) {
-      setTimeout(() => reject(new Error('request timeout')), 5000)
+        setTimeout(() => reject(new Error('request timeout')), 5000)
     })
 ]);
 p
- .then(console.log)
- .catch(console.error);
+    .then(console.log)
+    .catch(console.error);
 
 // Promise.allSettled 等待所有promise状态都发生变更
 let urls = [
     'https://api.github.com/users/iliakan',
     'https://api.github.com/users/remy',
     'https://no-such-url'
-  ];
-  
+];
+
 Promise.allSettled(urls.map(url => fetch(url)))
     .then(results => {
         results.forEach((result, num) => {
             if (result.status == "fulfilled") {
-            alert(`${urls[num]}: ${result.value.status}`);
+                alert(`${urls[num]}: ${result.value.status}`);
             }
             if (result.status == "rejected") {
-            alert(`${urls[num]}: ${result.reason}`);
+                alert(`${urls[num]}: ${result.reason}`);
             }
         });
     });
@@ -92,3 +92,50 @@ Promise.allSettled(urls.map(url => fetch(url)))
  * 
  */
 
+class MyPromise {
+    constructor(executor) {
+        this.status = 'pending';
+        this.value = undefined;
+        this.reason = undefined;
+        this.fullFillCallbacks = [];
+        this.rejectCallbacks = [];
+
+        let resolve = (value) => {
+            if (this.status === 'pending') {
+                this.status = 'fullFilled';
+                this.value = value;
+                this.fullFillCallbacks.forEach(fn => fn(value));
+            };
+        };
+
+        let reject = (reason) => {
+            if (this.status === 'pending') {
+                this.status = 'rejected';
+                this.reason = reason;
+                this.rejectCallbacks.forEach(fn => fn(reason));
+            };
+        };
+
+        try {
+            executor(resolve, reject);
+        } catch (error) {
+            reject(error);
+        };
+    }
+
+    then(resolveCallback, rejectedCallback) {
+        if (this.status === 'fullFilled') {
+            resolveCallback(this.value);
+        };
+
+        if (this.status === 'rejected') {
+            rejectedCallback(this.reason);
+        };
+
+        if (this.status === 'pending') {
+            this.fullFillCallbacks.push(resolveCallback);
+            this.rejectCallbacks.push(rejectedCallback);
+        };
+    }
+
+}
