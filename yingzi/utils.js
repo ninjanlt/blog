@@ -215,3 +215,37 @@ export function getFormData(object) {
     })
     return formData
 }
+
+/**
+     * @param num 区划ID值
+     * @param list 区划数据
+     * @return [110000, 110100, 110101]
+     */
+interpretArea(num, list = [], china = false) {
+    let label = ''
+    const intAreaList = []
+    if (num && num.constructor !== Number) {
+        num = String(num)
+        if (!num || num.length !== 6) return num
+    } else {
+        return num
+    }
+    ; (function rcMap(num, list, level = 0) {
+        const key = num.substring(level * 2, level * 2 + 2)
+        if (!key) return null
+        const listMap = list.filter(
+            item => `${item.id}`.substring(level * 2, level * 2 + 2) === key
+        )
+        if (listMap.length === 1) {
+            level++
+            intAreaList.push(listMap[0].id)
+            label += listMap[0].label
+            return rcMap(num, listMap[0].children, level)
+        }
+    })(num, list)
+    if (!china) {
+        return intAreaList
+    } else {
+        return label
+    }
+}
