@@ -50,7 +50,7 @@ function defineReactive(obj, key, val) {
             if (newVal !== val) return
             console.log(`${obj[key]} 数据被修改了`)
             val = newVal
-            // 通知更新依赖数据
+            // 通知更新订阅的依赖者
             dep.notify()
         }
     })
@@ -59,9 +59,9 @@ function defineReactive(obj, key, val) {
 
 /**
  * 如何将数据的变化更新到视图上？
- * 当数据被递归的添加观测时，我们声明一个收集此依赖数据的集合，表示依赖该数据的元素
- * 每当我们触发一下数据的 get 读取时，将对应的元素添加到集合中
- * 每当我们重新 set 改变数据的新值时，通知集合中所有的依赖元素，表示当前数据更新了
+ * 当数据被递归的添加观测时，我们声明一个收集此依赖者的集合
+ * 每当我们触发一下数据的 get 读取时，将对应的依赖者添加到集合中
+ * 每当我们重新 set 改变数据的新值时，通知集合中所有的依赖者，表示当前数据更新了
  * 在 getter 中收集依赖，在 setter 中通知依赖更新，消息订阅与发布的模式
  * 
  */
@@ -88,13 +88,13 @@ class Dep {
     notify() {
         const subs = this.subs.slice()
         for (let i = 0; i < subs.length; i++) {
-            // 调用依赖元素身上的更新方法
+            // 调用依赖者身上的更新方法
             subs[i].update()
         }
     }
 }
 
-// 查找对应的元素删除该项
+// 查找对应的依赖者删除该项
 function remove(list, el) {
     if (list.length) {
         const index = list.indexOf(el)
@@ -107,9 +107,45 @@ function remove(list, el) {
 
 /**
  * 此时已经完成数据的观测以及针对依赖数据的消息订阅与发布，但是我们应该通知谁去更新？
- * 现在就需要一个中间人 watcher 通过它我们来更新真正的视图，每一个依赖数据者
+ * 现在就需要一个中间人 watcher 通过它我们来更新真正的视图，创建每一个依赖数据者
  * 
  */
 class Watcher {
-    
+    constructor(vm, expOrFn, cb) {
+        this.vm = vm
+        this.cb = cb
+        this.getter = parsePath(expOrFn)
+        this.value = this.get()
+    }
+
+    get() {
+        // 保存当前实例
+        window.target = this
+        const vm = this.vm
+        // 主动触发 getter 将对应的实例添加到订阅列表中 subs
+        let value = this.getter(vm)
+        window.target = undefined
+        return value
+    }
+
+    update() {
+        const oldValue = this.value
+        // 再次触发获取新的值
+        this.value = this.get()
+        this.cb.call(this.vm, this.value, oldValue)
+    }
+}
+
+// 解析路径，同时主动去触发一下 getter
+const bailRE = /[^\w.$]/
+function parsePath(path) {
+    if (bailRE.test(path)) { return }
+    const segments = path.split('.')
+    return function (obj) {
+        for (let i = 0; i < segments.length; i++) {
+            if (!obj) { return }
+            obj = obj[segments[i]]
+        }
+        return obj
+    }
 }
