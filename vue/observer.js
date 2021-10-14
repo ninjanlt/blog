@@ -1,3 +1,8 @@
+import { arrayMethods } from './array.js'
+import { parsePath, hasProto, protoAugment, copyAugment, isObject, hasOwn, def } from './utils.js'
+
+const arrayKeys = Object.getOwnPropertyNames(arrayMethods)
+
 /**
  * vue 如何实现数据的观测？
  * 通过对 data 数据的递归遍历添加 get 和 set 的劫持
@@ -8,8 +13,17 @@
 class Observer {
     constructor(value) {
         this.value = value
+        // 实例化一个依赖管理器，用来收集依赖者
+        this.dep = new Dep()
+        // 为当前的数据对象添加一个 __ob__ 标识响应式对象 value = __ob__
+        def(value, '__ob__', this)
         if (Array.isArray(value)) {
             // 如果是数组...
+            const augment = hasProto ?
+                protoAugment :
+                copyAugment
+            // 为当前数据对象添加重写数组方法的原型对象
+            augment(value, arrayMethods, arrayKeys)
         } else {
             this.walk(value)
         }
@@ -36,13 +50,15 @@ function defineReactive(obj, key, val) {
 
     // 为当前 key 创建一个依赖集合
     const dep = new Dep()
-
+    const childOb = observe(obj)
     Object.defineProperty(obj, key, {
         enumerable: true,
         configurable: true,
         get() {
             // 收集依赖
-            dep.depend()
+            if (childOb) {
+                childOb.dep.depend()
+            }
             console.log(`${obj[key]} 数据被读取了`)
             return obj[key]
         },
@@ -136,16 +152,23 @@ class Watcher {
     }
 }
 
-// 解析路径，同时主动去触发一下 getter
-const bailRE = /[^\w.$]/
-function parsePath(path) {
-    if (bailRE.test(path)) { return }
-    const segments = path.split('.')
-    return function (obj) {
-        for (let i = 0; i < segments.length; i++) {
-            if (!obj) { return }
-            obj = obj[segments[i]]
-        }
-        return obj
+
+/**
+ * 判断当前 value 是否已经是一个观测对象
+ * 尝试为 value 创建一个 0bserver 实例，如果创建成功，直接返回新创建的 Observer 实例。
+ * 如果 Value 已经存在一个 Observer 实例，则直接返回它。
+ * 
+ */
+export function observe(value, asRootData) {
+    if (!isObject(value) || value instanceof VNode) {
+        return
     }
+    let ob
+    // 此时的 '__ob__' 是用来标识当前数据已经是响应式对象
+    if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
+        ob = value.__ob__
+    } else {
+        ob = new Observer(value)
+    }
+    return ob
 }
