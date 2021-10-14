@@ -28,7 +28,7 @@ console.log(Object.is(+0, -0)) // false
 map.delete(NaN)
 map.clear() // 返回值 undefined
 
-let map = new Map([['a': 1], ['b', 2], ['c', 3]])
+let map = new Map([['a', 1], ['b', 2], ['c', 3]])
 
 for (let key of map.keys()) {
     console.log(key) // a b c
