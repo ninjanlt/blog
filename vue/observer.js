@@ -24,8 +24,16 @@ class Observer {
                 copyAugment
             // 为当前数据对象添加重写数组方法的原型对象
             augment(value, arrayMethods, arrayKeys)
+            this.observeArray(value)
         } else {
             this.walk(value)
+        }
+    }
+
+    // 数组观测方法
+    observeArray(items) {
+        for (let i = 0; i < items.length; i++) {
+            observe(items[i])
         }
     }
 
@@ -48,8 +56,6 @@ function defineReactive(obj, key, val) {
         new Observer(val)
     }
 
-    // 为当前 key 创建一个依赖集合
-    const dep = new Dep()
     const childOb = observe(obj)
     Object.defineProperty(obj, key, {
         enumerable: true,

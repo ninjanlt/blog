@@ -26,21 +26,23 @@ const arrayMethodsList = [
 arrayMethodsList.forEach(ms => {
     // 缓存一下原有的方法
     const original = arrayProto[ms]
-    /* Object.defineProperty(arrayMethods, ms, {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        // 为当前添加的方法绑定一个值，当我们使用方法时可以做一些事:
-        value: function metator(...args) {
-            const result = original.apply(this, args)
-            // 例如变化通知...
-            return result
-        }
-    }) */
     def(arrayMethods, ms, function mutator(...args) {
         const result = original.apply(this, args)
         // 当前的 __ob__ 就是 Observer 的实例
         const ob = this.__ob__
+        // 处理数组中新增元素时实现数据观测
+        // 日常开发中如果通过下标或者length属性来操作数组中数据此方法是无法观测数据变化的
+        let inserted
+        switch (ms) {
+            case 'push':
+            case 'unshift':
+                inserted = args
+                break;
+            case 'splice':
+                inserted = args.slice(2)
+                break;
+        }
+        if (inserted) ob.observeArray(inserted)
         // 通知更新变化
         ob.dep.notify()
         return result
