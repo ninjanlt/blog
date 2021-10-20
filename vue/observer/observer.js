@@ -48,6 +48,8 @@ class Observer {
 
 // 实现数据观测的方法
 function defineReactive(obj, key, val) {
+    const dep = new Dep()
+
     if (arguments.length === 2) {
         val = obj[key]
     }
@@ -62,8 +64,11 @@ function defineReactive(obj, key, val) {
         configurable: true,
         get() {
             // 收集依赖
-            if (childOb) {
-                childOb.dep.depend()
+            if (dep.target) {
+                dep.depend()
+                if (childOb) {
+                    childOb.dep.depend()
+                }
             }
             console.log(`${obj[key]} 数据被读取了`)
             return obj[key]
