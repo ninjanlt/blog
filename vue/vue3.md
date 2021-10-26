@@ -619,7 +619,7 @@ app.component('todo-item',{
 ---
 
 #### Component
->组件是可复用的组件实例，且带有一个名字
+> 组件是可复用的组件实例，且带有一个名字
 - 组件分为全局组件和局部组件，组件注册命名分为俩种方式 `kebab-case、PascalCase`
 - 局部注册采用 `import` 引入 `componets:{}` 声明的方式
 

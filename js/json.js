@@ -8,14 +8,25 @@
  */
 JSON.stringify(obj) //转化成字符串
 JSON.parse(str)	  //转换成对象
- 
+
 // 反序列时间字符串
 let str = '{"title":"Conference","date":"2017-11-30T12:00:00.000Z"}';
- 
-let meetup = JSON.parse(str, function(key, value) {
+
+let meetup = JSON.parse(str, function (key, value) {
    if (key == 'date') return new Date(value);
    return value;
 })
- 
+
 // 深度克隆
 JSON.parse(JSON.stringify(target))
+
+// 高级应用
+const space = 2
+const replacer = (key, value) => {
+   if (typeof value === "string") {
+      return undefined;
+   }
+   return value;
+}
+JSON.stringify(str, replacer, space)
+JSON.stringify(str, ['title'], space)

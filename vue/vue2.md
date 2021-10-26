@@ -326,6 +326,7 @@ export default{
     extends
     mixins
 // 接口 (组件的接口)
+// 根元素是否继承 attribute
     inheritAttrs
     model
     props / propsData
@@ -508,6 +509,7 @@ mounted() {
 
 #### parent-children
 - `$parent、$children` 访问父子组件属性和方法，但是无法扩展更深的组件上
+- 如果包含异步组件，没有办法保证子组件获取的顺序问题
 
 ```js
 // 类似于全局事件总线通过夫组件建立通信，实现兄弟之间通信
@@ -540,7 +542,13 @@ provide: function () {
 
 ```js
 export default{
-    inject: ['staticValue','staticObject','getReactiveValue'],
+    // inject: ['staticValue','staticObject','getReactiveValue'],
+    inject:{
+        status:{
+            from: staticValue,
+            default: () => [1, 2, 3]
+        }
+    },
     computed: {
     reactiveValue() {
     // 返回注入的对象函数，通过计算属性来监听值的变化
