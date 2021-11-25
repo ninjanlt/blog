@@ -11,7 +11,9 @@
 npm install vue-router
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-Vue.use(VueRouter)
+import routes from './routes'
+const router = new VueRouter({routes:routes})
+new Vue({router}).$mount('#app')
 ```
 
 ---
@@ -28,24 +30,36 @@ Vue.use(VueRouter)
 - 使用路由参数时，原来的组件实例会被复用，但是组件生命周期钩子不会再调用
 - 可以使用通配符 `*` 来匹配任意路由，可以应用于 `404` 页面
 
+```js
+{ path: '*' }
+// 会匹配以 `/user-` 开头的任意路径
+{ path: '/user-*' }
+// 当使用通配符时，$route.params 内会自动添加一个名为 pathMatch 参数
+this.$router.push('/user-admin')
+this.$route.params.pathMatch // 'admin'
+```
+
 ---
 
 #### nest router
 - 父子嵌套路由，父组件中需要添加 `<router-view>` 标签来展示子路由
 
 ```js
-//在上一级路由组件中写 children，底层内置不可更改命名
-children: [
-    {
-    // 路径后可以跟占位符标识
-      path: '/home/news/:id/:title',
-      component: news
-    },
-    {
-      name:'message',// 定义的 name 属性相当于跳转路径
-      path: 'message',
-      component: message
-    }
+// 在上一级路由组件中写 children，底层内置不可更改命名
+const routes = [
+  {
+    path: '/',
+    component: Home,
+    children: [
+      {
+      // 路径后可以跟占位符标识
+        path: '/news/:id/:title',
+        // 定义的 name 属性相当于跳转路径
+        name: 'news',
+        component: News
+      }
+    ]
+  }
 ]
 ```
 
@@ -53,7 +67,7 @@ children: [
 
 #### program nav
 - 除了使用 `<router-link>` 创建 `<a>` 标签定义导航连接，还可以通过 `router` 方法
-- `this.$router.push`这个方法会向 `history` 栈添加一个新的记录，所以，当用户点击浏览器后退按钮时，则回到之前的 `URL`
+- `Vue` 的编程式导航采用的是浏览器 `HistoryAPI` 可以操作浏览器的历史记录，具体方法包含（`back`，`go`，`forward`，`pushState`，`replaceState`）
 
 声明式 | 编程式
 ---|---
@@ -61,12 +75,20 @@ children: [
 
 ```js
 // 参数可以是一个字符串路径，或者一个描述地址的对象
-$router.push('home')
-// params跳转方式只能用 name 来指定
+$router.push('home' || { path: '/home' })
+// 命名路由，params 传参只能用 name 来指定
 $router.push({ name: 'user', params: { userId: '123' }})
-// query 跳转方式可以是 name 也可以是 path
-$router.push({ path: 'register', query: { plan: 'private' }})
-// 带查询参数，变成 /register?plan=private
+// 如果采用 path 指定路径，采用 query 形式传递参数，params 会被忽略
+// 地址栏信息 /user?username=123
+$router.push({ path: '/user', query: { userId: '123' }})
+// 反例 /user 接收不到 params 形式的传参
+$router.push({ path: '/user', params: { userId: '123' }})
+// 如果采用 path 地址栏传参，需要指定占位符
+$router.push({ path: '/user/123'})
+{
+  path: '/user/:userId', // 此时 userId 作为 params 参数获取
+  component: User
+}
 ```
 - `this.$router.replace` 不会向 `history` 添加新记录
 
@@ -90,16 +112,16 @@ $router.go(-1)
 - `query` 通过 `path` 切换路由，`params` 通过 `name` 切换路由
 
 ```js
-注册路由: 
-    {
-        name: 'news' // 相当于指定了路径
-        path: '/home/news/:id/:title',
-        component: News
-    }
-跳转要给 to 传入对象: 
+// 注册路由: 
+{
+    name: 'news' // 相当于指定了路径
+    path: '/home/news/:id/:title',
+    component: News
+}
+// 跳转要给 to 传入对象: 
 // 编程式路由导航
-    <router-link :to="{ name: 'news', params: {id: 1, title: 'abc'} }">
-    $router.push({ name: 'news', params: {id: 1, title: 'abc'} })
+  <router-link :to="{ name: 'news', params: {id: 1, title: 'abc'} }">
+  $router.push({ name: 'news', params: {id: 1, title: 'abc'} })
 ```
 
 ---
@@ -113,13 +135,14 @@ $router.go(-1)
 <router-view name="M"></router-view>
 
 <script>
+// 确保使用时 component + s
 {
-    path:'/home',
-    components:{
-        default:Home,
-        P:Person,
-        M:Miste
-    }
+  path:'/home',
+  components:{
+      default:Home,
+      P:Person,
+      M:Miste
+  }
 }
 </script>
 ```
@@ -128,11 +151,13 @@ $router.go(-1)
 
 #### redirect
 - 匹配路由，重定向到对应的路径
-- `/a` 的别名是 `/b`，意味着当用户访问 `/b` 时，`URL` 会保持为 `/b`，但是路由匹配则为 `/a`，就像用户访问 `/a` 一样
+- 路由别名，`/a` 的别名是 `/b`，意味着当用户访问 `/b` 时，`URL` 会保持为 `/b`，但是路由匹配则为 `/a`，就像用户访问 `/a` 一样
 
 ```js
 const router = new VueRouter({
     routes:[
+        {path:'*', redirect: '/'},
+        // 别名
         {path:'/a', redirect: '/b'},
         // 可以是命名路由的方式
         {path:'/a', redirect: {name: 'foo'}},
@@ -191,8 +216,14 @@ const router = new VueRouter({
 - `props` 函数模式，动态传参将参数转为另一种类型
 
 ```js
+// 此时如果访问 /xx/123 => {query: 123} 作为 props 属性传递给该组件
 { path:'/xx/:id', component:x, props:(route) => ({query:route.query.q}) }
 ```
+
+---
+
+#### history mode
+> 如果采用 `history` 需要后台配置，如果 `URL` 匹配不到任何静态资源，则应该返回同一个 `index.html` 页面，这个页面就是你 `app` 依赖的页面。
 
 ---
 
