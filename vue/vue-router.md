@@ -18,7 +18,7 @@ new Vue({router}).$mount('#app')
 
 ---
 
-#### dynamic segment
+#### 动态路由参数
 - 路由参数使用冒号 `:` 标记，当匹配到一个路由时路由参数会传递到 `$route.params`
 
 模式 | 匹配路径 | $route.params
@@ -41,7 +41,7 @@ this.$route.params.pathMatch // 'admin'
 
 ---
 
-#### nest router
+#### 嵌套路由
 - 父子嵌套路由，父组件中需要添加 `<router-view>` 标签来展示子路由
 
 ```js
@@ -65,7 +65,7 @@ const routes = [
 
 ---
 
-#### program nav
+#### 路由导航
 - 除了使用 `<router-link>` 创建 `<a>` 标签定义导航连接，还可以通过 `router` 方法
 - `Vue` 的编程式导航采用的是浏览器 `HistoryAPI` 可以操作浏览器的历史记录，具体方法包含（`back`，`go`，`forward`，`pushState`，`replaceState`）
 
@@ -106,7 +106,7 @@ $router.go(-1)
 
 ---
 
-#### naming router
+#### 路由参数区别
 - `params` 和 `query` 传参字段不一样
 - `params` 只能用 `name`，`query` 都可以使用
 - `query` 通过 `path` 切换路由，`params` 通过 `name` 切换路由
@@ -126,7 +126,7 @@ $router.go(-1)
 
 ---
 
-#### naming view
+#### 命名视图
 - 同一个路由中展示多个视图组件
 
 ```html
@@ -149,7 +149,7 @@ $router.go(-1)
 
 ---
 
-#### redirect
+#### 路由重定向
 - 匹配路由，重定向到对应的路径
 - 路由别名，`/a` 的别名是 `/b`，意味着当用户访问 `/b` 时，`URL` 会保持为 `/b`，但是路由匹配则为 `/a`，就像用户访问 `/a` 一样
 
@@ -174,7 +174,7 @@ const router = new VueRouter({
 
 ---
 
-#### router props
+#### 路由传参
 - 路由信息包含一些路由相关的属性信息 `$route.path/params/query/meta`
 - 路由传参形式
 
@@ -222,12 +222,7 @@ const router = new VueRouter({
 
 ---
 
-#### history mode
-> 如果采用 `history` 需要后台配置，如果 `URL` 匹配不到任何静态资源，则应该返回同一个 `index.html` 页面，这个页面就是你 `app` 依赖的页面。
-
----
-
-#### keppAlive
+#### 缓存路由
 - 默认缓存的是所有对应的路由的，组件对象
 - 组件需要添加一个命名 `name` 属性，可以用 `include` 进行缓存
     - 语法： `keep-alive`
@@ -247,15 +242,28 @@ const router = new VueRouter({
 
 ---
 
-#### router guard
-###### global
+#### 路由组件钩子
+###### 全局钩子 router
 - beforeEach 全局前置守卫，路由导航被激活时
 
-```js
+```ts
+interface route = {
+  path: string,  // '/home/bar'
+  params: object,
+  query: object,
+  hash: string,
+  fullPath: string, // 解析后的完整路径 '/home/bar'
+  matched: object, // 一个完整嵌套的路由记录
+  name: string, // 命名路由
+  redirectedFrom: string, // 如果存在重定向则为重定向来的路径名称
+}
+
 // 可以做一些用户是否登录的判断
-router.beforeEach((to, from, next) => {
-  if (to.name !== 'Login' && !isAuthenticated) next({ name: 'Login' })
-  else next()
+router.beforeEach((to:route, from, next) => {
+  // to - 当前要去的路由对象信息
+  // form - 来自于当前的路由对象信息
+  // next - 函数必须执行才可以放行
+  next();
 })
 ```
 - beforeResolve 全局解析守卫，真正去解析路由路径和渲染路由组件
@@ -270,38 +278,33 @@ router.beforeResolve((to,from,next)=>{
 ```js
 router.afterEach((to,from)=>{})
 ```
-###### component
+###### 组件钩子 component
 - beforeRouteEnter 在被激活的组件里调用
 
 ```js
-beforeRouteEnter (to, from, next) {
-    // 不！能！获取组件实例 `this`
-    // 因为当守卫执行前，组件实例还没被创建
-    console.log(this);
-    next() // 确认允许加载目标路由路径及路由组件了
-},
-```
-- beforeRouteUpdate 当路由发生改变，组件被复用时调用
-
-```js
-beforeRouteUpdate (to, from, next) {
-    // 可以访问组件实例 `this`
-    console.log(this);
-    // 作用等同于watch ---> $route
-},
-```
-- beforeRouteLeave 导航离开该组件的对应路由时调用
-
-```js
-beforeRouteLeave (to, from, next) {
-    // 可以访问组件实例 `this`
-    next() // 放行 允许路由开始跳转
-    sessionStorage.setItem('scrollTop', document.documentElement.scrollTop)
+const Header = {
+  template: `<div>Header</div>`,
+  beforeRouteEnter (to, from, next) {
+    console.log(this); // 此时组件实例还没被创建 undefined
+    next(vm => {
+      console.log(vm); // 放行后可以获取当前组件实例
+    })
+  },
+  // 当前路由动态参数发生改变，组件被复用时调用 /header/1 or /header/2
+  beforeRouteUpdate (to, from, next) {
+    console.log(this); // 可以访问组件 this
+    next();
+  },
+  // 组件钩子离开时触发
+  beforeRouteLeave (to, from, next) {
+    next();
+    sessionStorage.setItem('scrollTop', document.documentElement.scrollTop);
+  }
 }
 ```
 
-###### router
-- beforeEnter 直接在路由配置，独享钩子
+###### 路由钩子 router
+- beforeEnter 直接在路由表中配置，单个路由独享钩子
 
 ```js
 const router = new VueRouter({
@@ -310,14 +313,14 @@ const router = new VueRouter({
       path: '/foo',
       component: Foo,
       beforeEnter: (to, from, next) => {
-        // ...
+        next();
       }
     }
   ]
 })
 ```
 
-###### 执行过程
+###### 路由组件钩子执行过程
 1. 导航被触发
 2. 在失活的组件里调用离开守卫
 3. 调用全局的 `beforeEach` 守卫
@@ -341,16 +344,7 @@ const router = new VueRouter({
   routes,
   scrollBehavior (to, from, savedPosition) {
     // return 期望滚动到哪个的位置
-    // return { x: 0, y: 1000 }
-    // console.log(savedPosition);
-    // if (savedPosition) {
-    //   return savedPosition
-    // } else {
-    //   return { x: 0, y: 0 }
-    // }
-    console.log('路由跳转： scrollBehavior');
-    console.log(to);
-    console.log(from);
+    console.log('scrollBehavior:', to, from);
     if(to.path === '/msite'){
       return { x: 0, y: sessionStorage.getItem('scrollTop')*1 }
     }else {
@@ -359,4 +353,31 @@ const router = new VueRouter({
   }
 })
 ```
+
+---
+
+#### 动态路由
+- 构建路由对象信息
+- `router.addRoutes` 传递路由数组 `vue3` 中废弃
+- `router.addRoute` 添加单个路由
+
+```js
+interface RouteConfig = {
+  path: string,
+  component?: Component,
+  name?: string, // 命名路由
+  components?: { [name: string]: Component }, // 命名视图组件
+  redirect?: string | Location | Function,
+  props?: boolean | Object | Function,
+  alias?: string | Array<string>,
+  children?: Array<RouteConfig>, // 嵌套路由
+  beforeEnter?: (to: Route, from: Route, next: Function) => void,
+  meta?: any,
+
+  // 2.6.0+
+  caseSensitive?: boolean, // 匹配规则是否大小写敏感？(默认值：false)
+  pathToRegexpOptions?: Object // 编译正则的选项
+}
+```
+
 ---
