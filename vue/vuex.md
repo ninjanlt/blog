@@ -177,9 +177,12 @@ export default {
 this.$store.dispatch('incrementAsync', data)
 
 const actions = {
-  incrementAsync ({commit, state}, data) {
-    commit('mutation', {data})
+  incrementAsync (context, data) {
+    context.commit('mutation', {data})
   }
+  // incrementAsync ({commit, state}, data) {
+  //   commit('mutation', {data})
+  // }
 }
 ```
 
@@ -213,6 +216,19 @@ actions: {
 }
 ```
 
+- 在组件中批量分发多个 `action`
+
+```js
+import { mapActions } from 'vuex'
+
+export default {
+  methods: {
+    ...mapActions([ 'increment', 'incrementBy' ]),
+    ...mapActions({ add: 'increment' })
+  }
+}
+```
+
 ---
 
 #### modules
@@ -224,6 +240,28 @@ actions: {
 - 映射方法也会改变，需要绑定命名空间名称
 
 ```js
+const user = {
+  namespaced: true
+  state: {},
+  mutations: {},
+  actions: {},
+  getters: {}
+}
+const setting = {
+  namespaced: true
+  state: {},
+  mutations: {},
+  actions: {},
+  getters: {}
+}
+
+const store = new Vuex.Store({
+  modules: {
+    user: user,
+    setting: setting
+  }
+})
+
 computed:{
     ...mapState(['user/name']),
     ...mapState({
