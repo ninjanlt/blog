@@ -132,7 +132,9 @@ const temp = () => ({
                 onClick={() => this.handleClick}
                 class={{ foo: true, bar: false }}
                 style={{ color: 'green', fontSize: '14px' }}
-            ></div>
+            >
+                <el-popver onShow={(event) => this.imgShow(event)}></el-popver>
+            </div>
         )
         // switch case
         return (
