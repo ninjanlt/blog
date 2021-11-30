@@ -1,19 +1,56 @@
+
+#### 版本环境
+- `node @12.16.1`
+- `webpack @4.44.2`
+- `webpack-cli @3.3.12`
+
+---
+
 #### webpack
-`webpack` 用来将静态资源打包器，当 `webpack` 处理应用程序时，会递归构建一个依赖关系图，其中包含应用程序所需要的模块，然后将这些模块打包成一个或多个 `bundle`，前端的所有资源文件 `js\json\css\img\less...` 都会作为模块处理。
+- `webpack` 是静态资源打包器，它基于 `node` 对文件操作的能力，将非 `js json` 文件处理成对应的 `js` 文件模块。
+- 当 `webpack` 处理应用程序时，会递归构建一个依赖关系图，其中包含应用程序所需要的模块，然后将这些模块打包成一个或多个 `bundle`，前端的所有资源文件 `js\json\css\img\less...` 都会作为模块处理。
 
 ---
 
 #### 核心
 
-- `Entry` 入口以哪个文件作为起点开始打包，分析构建内部依赖图
-- `Output` 输出打包后的资源输出到哪里，以及如何命名
-- `Loader` 模块加载器，解析非 `js\json` 文件供 `webpack` 使用
-- `Plugin` 插件，在 `Webpack` 构建流程中的特定时机插入具有特定功能的代码
-- `mode` 相应的模式 `production\development`
+- `Entry` 根据入口文件递归去寻找依赖，每个依赖都将被 `webpack` 处理，最后打包到集合文件中
+- `Output` 配置打包输出的位置、文件名等
+- `Loader` 模块加载器，通过它解析非 `js\json` 任意类型的文件
+- `Plugin` 在 `Webpack` 构建流程中的特定时机插入具有特定功能的代码来改变构造结果
+- `mode` 指定目标环境 `production\development`
 
 ```bash
 npm init -y
 npm install webpack webpack-cli -D
+```
+
+---
+
+#### 你需要的
+- `postcss` 项目中我们需要 `webpack` 帮助我们加上 `css` 样式兼容性前缀，实际是通过 `autoprefixer` 插件，但它本身又依赖于 `postcss`
+- `babel` 默认会帮助我们转换 `ES6+` 语法，并不会转换 `ES6+` 特性，`ES6+` 特性需要预设包做支撑
+- `@babel/core` 核心库，所有的 `api` 都在这里，这些 `api` 可供 `babel-loader` 去调用
+- `@babel/preset-env` 预设插件包，`babel` 也是通过各种插件来规定 `ES6 => ES5` 的翻译规则
+- `@babel/polyfill` 弥补浏览器缺失的一些新特性，如内置对象 `Promise` 等（注：`babel@7.4` 将此包废弃）
+- `core-js` 它是 `js` 新标准的补充库，它可以实现按需加载，使用 `@babel/preset-env` 可以配置 `core-js` 的引入方式和版本（注：`@babel/polyfill` 依赖 `core-js`）
+- `regenerator-runtime` 提供 `generator` 函数的转码
+- `browserslist` 声明浏览器的兼容合集，可以在 `package.json` 文件中配置，也可以通过 `.browserslistrc` 单文件配置
+- `chunk` 代码块一个 `chunk` 可能由多个模块组合而成，用于代码合并和分割（合并分割采用指纹策略，指纹策略是指文件后的 `hash` 标识）
+- `chunks` 多个 `chunk` 的集合
+- `bundle` 资源经过 `webpack` 流程解析编译最终输出的一个 `js` 文件
+
+```js
+// index.js
+import { a } from 'a.js'
+console.log('我是index文件')
+
+// a.js
+const a = '我是a文件'
+export { a }
+
+// 上面代码来说，a.js 就是 chunk，而 index.js 就是 chunks
+// 在 webpack 构建中入口是 chunks，出口是 chunk
 ```
 
 ---
