@@ -264,29 +264,31 @@ server.listen(8081, () => {
 
 #### 数据格式
 - `multipart/form-data` 表单形式提交，既可以上传键值对也可以上传多个文件
-- 文件上传时 `form` 表单必须要增加的属性 `enctype="multipart/form-data"`
 
 ```
 # Request Payload
 ------WebKitFormBoundaryBRi81vNtMyBL97Rb
-Content-Disposition: form-data; name="name"
+Content-Disposition: form-data; name="fullname"
 ```
 
-- `application/x-www-from-urlencoded` 只能以键值对的数据格式提交
+- `application/x-www-from-urlencoded` 只能以键值对的数据格式提交，用于 `GET` 请求
 
 ```
 # Request Payload
 name=tom&age=18
 ```
 
-- `raw` 通常用于 `application/json` 可以上传 `text、javascript、html、xml` 格式
+- `raw` 传输
+  - `application/json` 序列化字符串
+  - `text/xml` 以 `xml` 格式传输
+  - `text/plain` 数据以纯文本形式进行编码
 
 ```
-# Form Data
+# JSON
 {"name": "tom", "age": 12}
 ```
+
 - `binary` 只可以上传二进制数据 `application/octet-stream` 用来上传文件，一次只能上传一个文件
-- `query` 参数包含在请求地址中，格式为 `../user?name=lxm`，用于 `GET` 请求
 
 ---
 
