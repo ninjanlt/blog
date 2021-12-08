@@ -28,51 +28,15 @@ console.log(objK.age) // 90
  * 委托
  * 每一个对象身上都会有一个 __proto__ 属性来指向它的原型对象
  * 原型对象身上会有一个 constructor 属性来指向它的构造函数，同时 __proto__ 指向 Object.prototype
- * 构造函数身上会有一个 prototype 来指回它的原型
- * 构造函数本身也是一个实例对象它通过 __proto__ 来指向函数 prototype 原型对象
+ * 构造函数身上会有一个 prototype 来指回它的原型，同时构造函数本身也是一个实例对象通过 __proto__ 指向 Function.prototype
+ * 而 Function 构造函数的 prototype 和 __proto__ 都是指向 Function.prototype
+ * 而 Object 构造函数的 __proto__ 指向 null
  * 
  */
  let arr = [1, 2, 3];
  alert( arr.__proto__ === Array.prototype ); // true
  alert( arr.__proto__.__proto__ === Object.prototype ); // true
  alert( arr.__proto__.__proto__.__proto__ ); // null
-
-
- /**
-  * 继承
-  * 1. 原型链继承
-  *     通过将子类的原型对象作为父类的实例
-  *     缺点就是不能向父类构造函数进行传参、父类身上的引用类型会被实例共享
-  * 2. 盗用构造函数继承
-  *     通过在子类中使用 call 方法，实现盗用父类构造函数向父类传参
-  *     缺点无法继承父类原型对象的属性和方法
-  * 3. 组合继承
-  *     将以上两种方法进行合并
-  *     缺点父类构造函数会被调用多次
-  * 4. 寄生组合继承
-  *     建立在组合继承基础之上，使用 Object.create 方法
-  *     缺点存在效率问题
-  * 
-  */
-function Animal(name) {
-    this.name = name;
-    this.colors = ['red','blue'];
-}
-Animal.prototype.eat = function() {
-    console.log(this.name + ' is eatting');
-}
-function Dog(name) {
-    Animal.call(this,name);
-}
-Dog.prototype = Object.create(Animal.prototype);
-Dog.prototype.constructor = Dog;
-var dog1 = new Dog('dog1');
-var dog2 = new Dog('dog2');
-dog1.colors.push('yellow');
-console.log(dog1.name);  // 输出dog1
-console.log(dog2.colors);// 输出['red','blue']
-console.log(dog2.eat()); // 输出dog2 is eatting
-
 
 /**
  * 常用的对象方法
