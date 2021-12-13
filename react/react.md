@@ -85,6 +85,11 @@ class Counter extends React.Component{
         this.setState(function(props,state){
             return { state.count += props.increment }
         })
+        // 异步 setState
+        this.setState({count: count++}, ()=>{
+            // 这里获取最新的 state 状态
+            console.log(this.state.count)
+        })
     }
     render(){
         return <span>{this.state.count}</span>
@@ -99,21 +104,45 @@ class Counter extends React.Component{
 1. 组件标签上的属性都会保存在 `props` 当中
 2. 组件必须像纯函数一样保护自身 `props` 不被更改
 3. 类型限制使用 `react` 提供的 `prop-types` 模块
+4. 父传子通过 `props` 传递数据，子传父通过传递一个函数子组件传递参数
+5. 父组件如果给一个非自闭合标签增加文本标签，子组件内部通过 `props.children` 属性获取
 
 ```jsx
 import PropTypes form 'prop-types'
 
 class Counter extends React.Component{
+    constructor(props){
+        super(props)
+        this.state = { count: 0 }
+    }
     static propTypes = {
         name: PropTypes.string.isRequired
     }
     static defaultProps = {
         age: 10
     }
+    addCount = ({count}) => {
+        this.setState({count})
+    }
+    render(){
+        return (
+            <div>
+                <span>@</span>
+                <Counter emitCount={this.addCount}  />
+            </div>
+        )
+    }
 }
 
 function Counter (){
-    return <span>@</span>
+    function emitInfo() {
+        props.emitCount({count: 2}) // 👈
+    }
+    return (
+        <div>
+            <button onClick={emitInfo}>点击发送消息</button>
+        </div>
+    )
 }
 Counter.propTypes = {
     name: PropTypes.string.isRequired
@@ -157,6 +186,8 @@ class Demo extends React.Component{
     }
     render(){
         return <button onClick={this.show}>insert</button>
+        // return <button onClick={()=> this.show}>insert</button>
+        // return <button onClick={this.show.bind(this)}>insert</button>
     }
 }
 ```
