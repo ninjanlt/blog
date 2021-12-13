@@ -315,3 +315,25 @@ class Search extends React.Component {
 ```
 
 ---
+
+#### pureFunction
+
+1. 一个函数的返回值，只依赖于它自身的参数，并且执行时内部没有产生副作用，它就是纯函数
+2. 副作用
+    - 修改外部的变量
+    - 调用 `DOM API` 修改页面
+    - 发送 `AJAX` 请求
+    - 包括 `console.log` 都是副作用
+    - 造成外部可以观测到的行为
+3. 纯函数的依赖状态只存在它执行的生命周期中，不能在方法中使用共享变量，会带来未知因素
+
+```jsx
+const foo = (count)=>{
+    // 外部无法观测函数内部变量，此时就不是副作用
+    const obj = {count: 1}
+    count += obj.count
+    return count
+}
+```
+
+---
