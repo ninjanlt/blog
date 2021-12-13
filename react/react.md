@@ -196,8 +196,8 @@ class Demo extends React.Component{
 
 #### control
 
-1. 非受控组件通过表单提交事件直接将数据进行提交
-2. 受控组件将 `state` 数据与表单建立依赖关系，通过合成事件与 `setState` 维护数据就能控制用户输入过程中发生的操作
+1. 非受控组件通过表单提交事件直接将数据进行提交，采用原生事件
+2. 受控组件将 `state` 数据与表单建立依赖关系，组件内部的 `state` 就成了唯一的数据源，通过合成事件与 `setState` 维护数据就能控制用户输入过程中发生的操作，实时渲染页面
 
 ---
 
@@ -219,7 +219,7 @@ class Login extends React.Component{
         return (event) => {}
     }
     render(){
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={this.handleSubmit}>
             用户名: <input onChange={this.saveFormData('username')} />
             <button>登录</button>
         </form>
@@ -233,13 +233,13 @@ class Login extends React.Component{
 
 1. 挂载
     - `constructor` 类组件初始化实例
-    - `componentWillMount` 组件将要进行挂载，此时页面白屏
+    - `UNSAFE_componentWillMount` 组件将要进行挂载，此时页面白屏
     - `render` 组件渲染页面
     - `componentDidMount` 组件挂载之后，可以启动定时器操作
 2. 更新
-    - `componentWillReceiveProps` 父组件重新 `render` 子组件钩子接收新的 `props` 数据
-    - `shouldComponentUpdate` 调用 `setState` 触发，该钩子默认返回 `true` 进行数据渲染更新
-    - `componentWillUpdate` 调用 `forceUpdate` 强制更新页面，不对状态做修改
+    - `UNSAFE_componentWillReceiveProps` 父组件重新 `render` 子组件钩子接收新的 `props` 数据
+    - `shouldComponentUpdate(nextProps, nextState)` 调用 `setState` 触发，该钩子默认返回 `true` 进行数据渲染更新
+    - `UNSAFE_componentWillUpdate` 调用 `forceUpdate` 强制更新页面，不对状态做修改
     - `render` 再次触发
     - `componentDidUpdate(prevProps, prevState)` 组件已更新完毕
 3. 卸载
@@ -249,14 +249,15 @@ class Login extends React.Component{
 
 #### new
 
-1. 新版本中使用老版本钩子，带有 `will` 钩子需要添加 `UNSAFE_` 前缀否则会有弃用警告，除了 `willUnmount` 钩子
+1. 新版本 `17+` 中使用老版本钩子，带有 `will` 钩子需要添加 `UNSAFE_` 前缀否则会有弃用警告，除了 `willUnmount` 钩子
 2. 新版本 `react` 废弃三个钩子，新增两个钩子
-3. `getDerivedStateFromProps` 获取来自 `props` 的派生状态
+3. `static getDerivedStateFromProps` 获取来自 `props` 的派生状态
     - 它需要给 `class` 使用，添加 `static` 标识，它必须返回一个状态对象或者是 `null`
     - 当 `state` 的值完全取决于 `props` 时可以使用它，没有自身状态的组件
-4. `getSnapshotBeforeUpdate` 在更新之前获取一个快照，记录之前的状态
+    - 在 `DOM` 渲染之前执行并且后续的数据更新也会触发
+4. `getSnapshotBeforeUpdate(preProps, preState)` 在更新之前获取一个快照，记录之前的状态
     - 它必须返回一个快照或者 `null`
-    - 它的任何返回值都将传递给 `componentDidUpdate` 第 3 个参数
+    - 它的任何返回值都将传递给 `componentDidUpdate(pProps, pState, snapshot)` 第 3 个参数
     - 通常用来获取当前滚动的坐标
 
 ---
