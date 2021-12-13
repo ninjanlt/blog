@@ -7,8 +7,17 @@
 import { Link, HashRouter as Router, Route } form 'react-router-dom'
 
 <Router>
+    <!-- 
+        to: string | object
+        to={{
+            pathname: '/home', // 路径
+            search: '?id=1', // 参数
+            hash: '#home', // hash值
+            state // 保存到 window.location 的 state 中
+        }}
+     -->
     <Link className="link_about" to="/about">About</Link>
-    <Link className="link_about" to="/home">Home</Link>
+    <Link className="link_about" to="/home" replace>Home</Link>
     <!-- 展示路由 -->
     <Route path="/about" component={About} />
     <Route path="/home" component={Home} />
@@ -38,7 +47,9 @@ const Home = ({history, location, match}) => {
 <NavLink 
     activeClassName="activeForce" 
     activeStyle={{color: '#fff'}} 
-    to="/Home" 
+    to="/Home"
+    isActive={this.isActiveHandle} // 当此NavLink被选中时，执行回调
+    exact // 开启精准模式
 />
 ```
 
@@ -93,21 +104,27 @@ const Home = ({history, location, match}) => {
 
 #### router params state search
 
-1. `params` 参数，占位符形式，传递参数接收到 `match` 对象中，地址栏展现形式
+1. `params` 参数，占位符形式，传递参数接收到 `prop.match` 对象中，地址栏展现形式
 
 ```html
 <Link to={`/about/${item.id}/${item.title}`} />
 <Route path="/about/:id/:title" component={About} />
 ```
 
-2. `search` 参数，编码形式为 `urlencode` 格式 `query` 查询字符串形式，传递参数接收到 `location` 对象中，根据路由形式不同 `hash` 模式下使用 `URLSearchParams` 解析参数，`browser` 模式下使用 `qs` 库解析参数
+2. `search` 参数，编码形式为 `urlencode` 格式 `query` 查询字符串形式，传递参数接收到 `prop.location` 对象中，根据路由形式不同 `hash` 模式下使用 `URLSearchParams` 解析参数，`browser` 模式下使用 `qs` 库解析参数
 
 ```html
 <Link to={`/about?id=${id}&title=${title}`} />
 <Route path="/about" component={About}/>
 ```
 
-3. `state` 参数，传递对象形式 `hash` 模型下刷新页面会导致参数丢失，传递至 `location` 对象中
+3. `to` 对象 `query` 形式非明文传输，刷新页面参数丢失
+
+```html
+<Link to={{pathname:'/home', query: totalData}}>Home</Link>
+```
+
+4. `state` 参数，传递对象形式 `hash` 模型下刷新页面会导致参数丢失，传递至 `location` 对象中
 
 ```jsx
 <Link to={{ pathname: '/about', state: {id: 1}}} />
@@ -127,7 +144,7 @@ const Home = ({history, location, match}) => {
 9. 路由编程式导航，通过操作 `history` 对象身上方法进行跳转，可携带三种参数
 
 
-```js
+```jsx
 replaceLink = (id,title) => {
     this.props.history.replace(`/about/${id}/${title}`)
     this.props.history.replace(`/about?id=${id}&title=${title}`)
@@ -144,6 +161,39 @@ import * as React from 'react'
 import {withRouter} from 'react-router-dom'
 class Header extends React.Component{}
 export default withRouter(Header)
+```
+
+---
+
+11. `Route` 组件有三种传递方式 `component` `render` `children`
+
+```jsx
+{/* component */}
+<Route path='/about' component={About} /> 
+
+{/* render */}
+<Route path='/home' render={props => (<div {...props} >Home</div>)} />
+
+{/* children match:boolean 用来判断是否与当前路径匹配 */}
+<Route path='/nav' children={({props, match}) => (match ? <Nav {...props}/> : <div>time</div>)} />
+```
+
+---
+
+12. 路由懒加载
+
+```jsx
+import React, { Component, lazy, Suspense } from 'react'
+const About = lazy(() => import('./pages/About'))
+
+{/* Suspense 可以接受一个 fallback 属性的组件， 用于产生过渡效果 */}
+<div> 
+    {/* 路由切換 */} 
+    <Suspense fallback={<Loading />}>  {/* 过渡效果组件 */}
+        <Route path='/about' component={About} /> 
+        <Route path='/home' component={Home} /> 
+    </Suspense> 
+</div>
 ```
 
 ---
