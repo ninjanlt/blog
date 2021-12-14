@@ -337,3 +337,86 @@ const foo = (count)=>{
 ```
 
 ---
+
+#### Fragment
+
+1. `react` 要求我们编写 `html` 结构时最外层都必须由一个标签包裹，但当我们编写多余的 `div` 时会造成无用的层级嵌套
+
+```jsx
+import React, { Component,Fragment } from 'react'
+
+export default class DemoFrag extends Component {
+    render() {
+        return (
+            <Fragment key={index}>
+               <p>fragment test</p>
+            </Fragment>
+            {/*
+                简写
+                <>
+                    <span></span>
+                </>
+            */}
+        )
+    }
+}
+```
+
+---
+
+#### Context
+
+1. 组件树下任意组件都可以获取到 `context` 分发的数据，就像发起了广播
+
+```jsx
+// context.js
+import { createContext } from 'react'
+const MyContext = createContext()
+export default MyContext
+
+// grandpa
+import React, { Component, useState } from 'react'
+import MyContext from '@/context'
+import Father from './Father'
+function Grandpa() {
+    const [grandpaInfo, setGranpaInfo] = useState('grandpaInfo')
+    return (
+        <>
+            <h4>Grandpa Component</h4>
+            <MyContext.Provider value={grandpaInfo}>
+                <Father />
+            </MyContext.Provider>
+        </>
+    )
+}
+export default Grandpa
+
+// father 不做任何数据传递
+// son
+import React, { Component } from 'react';
+import MyContext from '@/context'
+{/* class Son extends Component { // class
+    static contextType = MyContext;
+    render() {
+        return (
+            <>
+                <h4>Son Component</h4>
+                <p>info: {this.context}</p>
+            </>
+        );
+    }
+} */}
+function Son(){
+    return (
+        <>
+            <MyContext.Consumer>
+                {
+                    value => {
+                        return <p>info: {value}</p>
+                    }
+                }
+            </MyContext.Consumer>
+        </>
+    )
+}
+```
