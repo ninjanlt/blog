@@ -420,3 +420,61 @@ function Son(){
     )
 }
 ```
+
+---
+
+#### PureComponent
+> 当父组件重新 `render` 子组件的数据没有改变，则子组件也会 `render`，此时会导致无意义刷新
+
+1. `PureComponent` 内部对 `shouldComponentUpdate` 进行重写，观测了 `setState props` 的变化
+2. 这个观测只对 `state props` 新旧的对比，浅层次的对比，如果发生了改变就会触发 `update`
+3. 需要保证自身所继承的组件是一个纯的
+
+---
+
+#### RenderProps
+
+1. 传统的 `props` 可以直接传递组件，但是没有办法给接收到的组件传递数据
+
+```jsx
+// parent
+render() {
+    return (
+        <div>
+            <A B={<B />} /> // 👈
+        </div>
+    )
+}
+// child
+render(){
+    return (
+        <div>
+            {this.props.B}
+        </div>
+    )
+}
+```
+
+2. 解决无法向插槽传递数据问题
+
+```jsx
+// parent
+render(){
+    return (
+        <div>
+            <A render={(id)=> <B id={id} />} } />
+        </div>
+    )
+}
+// child
+render(){
+    const { id } = this.state
+    return (
+        <div>
+            {this.props.render(id)}
+        </div>
+    )
+}
+```
+
+---
