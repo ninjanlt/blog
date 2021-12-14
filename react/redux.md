@@ -154,18 +154,60 @@ export default connect(mapStateToProps, mapDispatchToProps)(Component)
 
 // main.js
 import React, { Component } from 'react'
-import ComponentA from "./containers/ComponentA";
+import Home from "./containers/Home";
 import store from './redux/store'; // 引入 store 对象
 
 export default class App extends Component {
     render() {
         return (
             <div>
-                <ComponentA store={store}/> {/* 将store传入 */}
+                <Home store={store}/> {/* 将store传入 */}
             </div>
         )
     }
-
+}
+// 子组件读取数据可以直接通过 props 取值
+// 简写
+export default connect( 
+    state => ({ state }), 
+    { 
+        addCount: addAction, 
+        addCountAsync: addActionAsync, 
+    } 
+)(Component)
 ```
+
+2. 无需每个组件都手动传入 `store`
+
+```jsx
+import React from 'react'
+import ReactDom from 'react-dom'
+import store from './redux/store'
+import { Provider } from 'react-redux'
+import App from './App'
+ReactDom.render(
+    <Provider store={store}>
+        <App />
+    </Provider>,
+    document.getElementById('root')
+)
+```
+
+3. 配合可视化插件使用
+    - 下载谷歌插件 `redux devtool`
+    - 项目内开发环境下安装依赖 `npm install -dev--save redux-devtools-extension`
+
+```jsx
+// store.js
+import { createStore, applyMiddleware } from "redux";
+import thunk from 'redux-thunk'
+import { composeWithDevTools } from "redux-devtools-extension";
+import allReducer from "./reducers";
+
+export default createStore(allReducer, composeWithDevTools(applyMiddleware(thunk)))
+```
+
+---
+
 
 
