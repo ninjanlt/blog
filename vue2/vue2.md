@@ -306,7 +306,7 @@ Vue.component('button-counter',{
 - 组件命名方式 `kebab-case` 烤串方式、`PascalCase` 驼峰方式
 - 局部注册组件需要在应用的文件中声明 `components`
 
-```
+```js
 export default{
 // 副作用 (触发组件外的影响)
     el
