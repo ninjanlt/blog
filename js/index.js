@@ -85,7 +85,7 @@ typeof {} // object
  * 逗号运算 ( , )
  * 逻辑运算 ( && || ! )
  * 三目运算 ( ? : )
- * 可选链操作符 ( .? )
+ * 可选链操作符 ( ?. )
  * 
  */
 
@@ -100,15 +100,15 @@ let x = '123'
 switch(x) {
     case 'value1': 
       // ...
-      [break]
+      break
   
     case 'value2':
       // ...
-      [break]
+      break
   
     default:
       // ...
-      [break]
+      break
 }
 
 // Break 有俩个作用，在 switch 当中跳出 switch 语句，for 循环当中跳出离它最近的一层循环
