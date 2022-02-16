@@ -93,6 +93,14 @@ $ git switch -c dev
 $ git switch dev
 ```
 
+```bash
+# 当切换分支并不想进行 commit 操作时可以使用
+# 将当前的工作区修改进行 "储藏" 压入栈中
+$ git stash
+# 当你进行多次 stash 然后解决了问题，想回到原来工作代码环境，你只需要切换到原分支上
+$ git stash pop
+```
+
 ---
 
 #### 合并
@@ -177,4 +185,31 @@ $ git rm [file1] [file2]
 
 ---
 
+#### vim 插入模式
 
+- 可以使用输入 `git commit` 进入编辑器界面
+- 通过 `i` 健进入编辑模式，退出时需要进行 `esc`
+
+```bash
+# 退出
+$ :q
+# 强制退出不保存
+$ :q!
+# 保存并退出
+$ :wq
+# 强制保存并退出
+$ :wq!
+```
+
+---
+
+#### gitflow 工作流程
+
+- `feature-[branches]` 功能分支，一般是从 `develop` 开发分支上检出
+- `develop` 开发主线分支，`feature` 功能分支的代码开发完成后，经过 `code review` 后会合并到此分支
+- `release-[branches]` 测试、发布主线，此分支是从 `develop` 分支上检出, 一般是提测阶段会使用该分支的代码
+- `bugfix` 修复 `release` 分支问题
+- `hotfix` 紧急修复，一般是用于修复上线后的生产环境的问题
+- `master` 线上稳定版分支
+
+---
