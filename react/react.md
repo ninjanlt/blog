@@ -6,7 +6,7 @@
 2. 组件化，模块化，容易复用
 3. JSX 融合 html 写法
 4. 高效，通过虚拟 dom diff 算法，最小化页面的重绘
-5. 单向数据流，数据层流向视图层，通过事件再到数据
+5. 单向数据流，数据层流向视图层，通过 UI 事件再到控制层
 
 ```
 npm install -g create-react-app 
@@ -73,7 +73,7 @@ ReactDOM.render(<Counter />, document.getElementById('root'))
 1. 状态机通过更新组件实例的 `state` 来更新页面渲染
 2. `state` 中的数据不要直接修改不会重新渲染组件，需要调用 `setState({})`
 3. `react` 更新 `state` 是将多个 `setState()` 调用合并成一次，不要依赖当前 `props\state` 值来更新下一个状态
-4. 解决获取当前状态 `setState` 接收一个函数使用
+4. 如果想获取当前状态将 `setState` 接收一个函数使用
 
 ```jsx
 class Counter extends React.Component{
@@ -105,9 +105,10 @@ class Counter extends React.Component{
 2. 组件必须像纯函数一样保护自身 `props` 不被更改
 3. 类型限制使用 `react` 提供的 `prop-types` 模块
 4. 父传子通过 `props` 传递数据，子传父通过传递一个函数子组件传递参数
-5. 父组件如果给一个非自闭合标签增加文本标签，子组件内部通过 `props.children` 属性获取
+5. 父组件如果增加 `innerText`，子组件内部通过 `props.children` 属性获取
 
 ```jsx
+// react 16+ => npm install --save prop-types
 import PropTypes form 'prop-types'
 
 class Counter extends React.Component{
@@ -116,7 +117,16 @@ class Counter extends React.Component{
         this.state = { count: 0 }
     }
     static propTypes = {
-        name: PropTypes.string.isRequired
+        name: PropTypes.string.isRequired,
+        optionalArray: PropTypes.array,
+        optionalBool: PropTypes.bool,
+        optionalFunc: PropTypes.func,
+        optionalNumber: PropTypes.number,
+        optionalObject: PropTypes.object,
+        optionalString: PropTypes.string,
+        optionalSymbol: PropTypes.symbol,
+        optionalAny: PropTypes.any,
+        optionalRequired: PropTypes.any.isRequired,
     }
     static defaultProps = {
         age: 10
@@ -234,23 +244,26 @@ class Login extends React.Component{
 1. 挂载
     - `constructor` 类组件初始化实例
     - `UNSAFE_componentWillMount` 组件将要进行挂载，此时页面白屏
+        - 只会被调用一次，在该方法中修改 `state` 的值，并不会引起组件重新渲染，异步操作可能阻塞 `UI`
     - `render` 组件渲染页面
     - `componentDidMount` 组件挂载之后，可以启动定时器操作
+        - 此时组件已经生成对应的 `DOM` 结构，数据请求等异步操作写在这个钩子中
 2. 更新
     - `UNSAFE_componentWillReceiveProps` 父组件重新 `render` 子组件钩子接收新的 `props` 数据
-    - `shouldComponentUpdate(nextProps, nextState)` 调用 `setState` 触发，该钩子默认返回 `true` 进行数据渲染更新
-    - `UNSAFE_componentWillUpdate` 调用 `forceUpdate` 强制更新页面，不对状态做修改
+    - `shouldComponentUpdate(nextProps, nextState)` 该钩子默认返回 `true` 进行数据渲染更新
+    - `UNSAFE_componentWillUpdate` 调用 `forceUpdate` 强制更新页面，不要对状态做修改否则会造成死循环
     - `render` 再次触发
     - `componentDidUpdate(prevProps, prevState)` 组件已更新完毕
 3. 卸载
-    - `componentWillUnmount` 组件将要卸载，做一些收尾工作，由 `ReactDOM.unmountComponentAtNode(el)` 触发
+    - `componentWillUnmount` 组件将要卸载，做一些收尾工作
+        - 由 `ReactDOM.unmountComponentAtNode(el)` 触发
 
 ---
 
 #### new
 
 1. 新版本 `17+` 中使用老版本钩子，带有 `will` 钩子需要添加 `UNSAFE_` 前缀否则会有弃用警告，除了 `willUnmount` 钩子
-2. 新版本 `react` 废弃三个钩子，新增两个钩子
+2. 新版本 `react` 废弃三个钩子，新增三个钩子
 3. `static getDerivedStateFromProps` 获取来自 `props` 的派生状态
     - 它需要给 `class` 使用，添加 `static` 标识，它必须返回一个状态对象或者是 `null`
     - 当 `state` 的值完全取决于 `props` 时可以使用它，没有自身状态的组件
@@ -259,6 +272,7 @@ class Login extends React.Component{
     - 它必须返回一个快照或者 `null`
     - 它的任何返回值都将传递给 `componentDidUpdate(pProps, pState, snapshot)` 第 3 个参数
     - 通常用来获取当前滚动的坐标
+5. `componentDidCatch(error, info)` 任何一处的 `js` 会触发该函数
 
 ---
 
