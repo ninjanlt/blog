@@ -237,6 +237,7 @@ store.dispatch = action => {
         console.error('错误报告:', err);
     }
 }
+
 // 如果后续增加了其他需求，那么 dispatch 函数将很庞大
 // 我们需要考虑如何实现扩展性很强的多中间件合作模式
 // 提取日志中间件
@@ -246,6 +247,7 @@ const loggerMiddleware = action => {
     next(action);
     console.log('next state', store.getState());
 }
+
 // 提取异常中间件
 const exceptionMiddleware = next => action => {
     try{
@@ -258,10 +260,13 @@ const exceptionMiddleware = next => action => {
     }
 }
 store.dispatch = exceptionMiddleware(loggerMiddleware);
+
 // loggerMiddleware
 const loggerMiddleware = next => action => {};
+
 // 如果我们将每一个中间件都以模块拆分，那么内部将无法读取 store 数据，我们将 store 也传递进去
 const timeMiddleware = store => next => action => {};
+
 // 应用例子
 const store = createStore(reducer);
 const next = store.dispatch;
@@ -269,10 +274,12 @@ const logger = loggerMiddleware(store);
 const exception = exceptionMiddleware(store);
 const time = timeMiddleware(store);
 store.dispatch = exception(time(logger(next)));
+
 // 优化封装，期望使用的方式
 // 接收旧的，重组返回新的 createStore
 const newCreateStore = applyMiddleware(exceptionMiddleware, timeMiddleware, loggerMiddleware)(createStore);
 const store = newCreateStore(reducer);
+
 // 实现 applyMiddleware
 const applyMiddleware = fcuntion(...middlewares){
     // 返回一个重写 createStore 方法
@@ -293,5 +300,125 @@ const applyMiddleware = fcuntion(...middlewares){
             return store;
         }
     }
+};
+
+// 目前还有一个小问题，每次创建之后我们都具有两个 store
+// 需要统一一下用法
+const createStore = (reducer, initState, rewriteCreateStoreFunc){
+    // 如果重写了 createStore 那么就采用新的
+    if(rewriteCreateStoreFunc){
+        const newCreateStore = rewriteCreateStoreFunc(createStore);
+        return newCreateStore(reducer, initState);
+    }
+};
+
+// demo
+const rewriteCreateStoreFunc = applyMiddleware(exceptionMiddleware, timeMiddleware, loggerMiddleware);
+const store = createStore(reducer, initState, rewriteCreateStoreFunc);
+```
+
+---
+
+> 增加退订功能。
+
+```js
+function subscribe(listener){
+    listeners.push(listener);
+    return function unsubscribe(){
+        const index = listeners.indexOf(listener);
+        listeners.splice(index, 1);
+    }
+}
+// demo
+const unsubscribe = store.subscribe(()=>{
+    let state = store.getState();
+    console.log(state.counter.count);
+})
+unsubscribe();
+```
+
+---
+
+> 最小开放策略，将中间件可修改维度降至只能修改 getState 方法。
+
+```js
+const simpleStore = { getState: store.getState };
+const chain = middlewares.map(middleware => middleware(simpleStore));
+```
+
+---
+
+> compose [A, B, C] => A(B(C(next)));
+
+```js
+// 我们在中间件实现方式
+const chain = [A, B, C];
+let dispatch = store.dispatch;
+chain.reverse().map(middleware => {
+    dispatch = middleware(dispatch);
+});
+
+// redux 帮助我们提供了一个 compose 方法
+export default function compose(...funcs) {
+  if (funcs.length === 1) {
+    return funcs[0];
+  }
+  return funcs.reduce((a, b) => (...args) => a(b(...args)));
 }
 ```
+
+---
+
+> 省略 initState 入参。
+
+```js
+// 在创建 store 的时候可以不传 initState
+const store = createStore(reducer, rewriteCreateStoreFunc);
+function createStore(reducer, initState, rewriteCreateStoreFunc){
+    // ...
+    if(typeof initState === 'function'){
+        rewriteCreateStoreFunc = initState;
+        initState = undefined;
+    }
+    // ...
+}
+```
+
+---
+
+> replaceReducer 按需加载，reducer 可以根据组件必要的时候再加载，新的替换老的。
+
+```js
+const createStore = function (reducer, initState) {
+  // ...
+  function replaceReducer(nextReducer) {
+    reducer = nextReducer;
+    /*刷新一遍 state 的值，新来的 reducer 把自己的默认状态放到 state 树上去*/
+    dispatch({ type: Symbol() });
+  }
+  // ...
+  return {
+    // ...
+    replaceReducer
+  }
+};
+
+const reducer = combineReducers({
+  counter: counterReducer
+});
+const store = createStore(reducer);
+​
+/*生成新的reducer*/
+const nextReducer = combineReducers({
+  counter: counterReducer,
+  info: infoReducer
+});
+/*replaceReducer*/
+store.replaceReducer(nextReducer);
+```
+
+---
+
+> 
+
+
