@@ -264,7 +264,7 @@ store.dispatch = exceptionMiddleware(loggerMiddleware);
 // loggerMiddleware
 const loggerMiddleware = next => action => {};
 
-// 如果我们将每一个中间件都以模块拆分，那么内部将无法读取 store 数据，我们将 store 也传递进去
+// 如果我们将每一个中间件都以模块拆分，那么内部将无法读取 store 数据，所以我们将 store 也传递进去
 const timeMiddleware = store => next => action => {};
 
 // 应用例子
@@ -418,7 +418,3 @@ store.replaceReducer(nextReducer);
 ```
 
 ---
-
-> 
-
-
