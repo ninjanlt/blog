@@ -102,3 +102,6 @@ const Child2 = React.memo((props) => {
 ```
 
 ---
+
+
+
