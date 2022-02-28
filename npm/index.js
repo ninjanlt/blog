@@ -8,6 +8,7 @@
  * npm install packageName --save-dev 安装开发和生产依赖中
  * 
  * 通过 npm config ls -l 可查看 npm 的所有配置，修改配置的命令为 npm config set
+ * 查看全局安装的包 npm list -g --depth 0
  * 
  * 配置淘宝镜像地址
  * npm config set registry https://registry.npm.taobao.org
