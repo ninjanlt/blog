@@ -57,3 +57,103 @@
     - 父元素不设置宽高，父元素默认会由子元素撑开，当子元素设置浮动，子元素会溢出父元素外，造成高度塌陷。
 
 ---
+
+### 水平居中
+
+1. 行内块级元素 `text-align: center;`
+2. 定宽块级元素 `margin: 0 auto;`
+3. 定宽块级元素 `left + margin`
+
+```css
+.child {
+    width: 300px;
+    position: relative;
+    left: 50%;
+    /* 负自身宽度的一半 */
+    margin-left: -150px;
+}
+```
+
+4. 定宽块级元素 `left + right + margin`
+
+```css
+.child {
+    position: absolute;
+    /* 水平拉满屏幕 */
+    left: 0;
+    right: 0;
+    width: 300px;
+    margin: auto;
+}
+```
+
+5. 定宽块级元素 `left + transform`
+
+```css
+.child {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+```
+
+6. `flex` 弹性盒子
+
+```css
+.parent {
+    display: flex;
+    justify-content: center;
+}
+```
+
+7. `grid` 网格布局
+
+```css
+.parent {
+    display: grid;
+    /* 方法一 */
+    justify-items: center;
+    /* 方法二 */
+    justify-content: center;
+}
+```
+
+---
+
+### 垂直居中
+
+1. 行内块级元素 `vertical-align: middle;`
+2. 定位负自身高度一半 `top + margin`
+
+```css
+.child {
+    position: absolute;
+    top: 50%;
+    margin-top: -50%;
+}
+```
+
+3. 拉伸方式实现 `top + bottom + margin`
+
+```css
+.child {
+    position: absolute;
+    /* 垂直拉满 */
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}
+```
+
+4. 定位偏移 `top + transform`
+
+```css
+.child {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+```
+
+---
+
