@@ -37,7 +37,7 @@ $ git clone [url]
 
 ---
 
-#### 回滚
+#### 回退
 - 查询提交记录的是`commit id`为十六进制的数字，`Git`会保存提交的记录，提供一个`HEAD`指针指向当前版本
 - `git reset --hard [commit]` 重置当前分支的 `HEAD` 为指定 `commit` 同时重置暂存区和工作区，与指定 `commit` 一致
 - 错误回滚查询记录 `git reflog` 可再次使用 `git reset --hard [commit]` 回退指定版本
@@ -50,12 +50,19 @@ $ git reflog
 $ git log --graph --pretty=format:"%h %s"
 # 仓库区回工作区
 $ git reset --hard [commit]
+# 后悔药，回溯节点保留节点内容
+$ git reset --soft [commit]
 # 暂存区回工作区，绿色文件回红色文件
 $ git reset HEAD
 # 仓库区回工作区文件修改后的状态
 $ git reset --mix [commit]
 # 红色文件恢复原始状态
 $ git checkout -- [fileName]
+```
+
+```bash
+# 生成一条新的记录仅 revert 掉自己提交的 commit
+$ git revert [commit]
 ```
 
 ---
@@ -97,8 +104,12 @@ $ git switch dev
 # 当切换分支并不想进行 commit 操作时可以使用
 # 将当前的工作区修改进行 "储藏" 压入栈中
 $ git stash
+$ git stash save '备注缓存'
 # 当你进行多次 stash 然后解决了问题，想回到原来工作代码环境，你只需要切换到原分支上
 $ git stash pop
+$ git stash list
+$ git stash clear
+$ git stash show -p
 ```
 
 ---
