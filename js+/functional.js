@@ -104,3 +104,17 @@ latin(["frog", "eyes"]); // error
 const latin1 = compose(map(angry), reverse);
 
 
+/**
+ * 容器
+ * 必须能够装载任意类型的值
+ * 
+ */
+
+const Container = function (x) {
+    this.__value = x;
+}
+Container.of = function (x) { return new Container(x) };
+Container.prototype.map = function (f) { return Container.of(f(this.__value)) };
+// functor
+Container.of(2).map(function (two) { return two + 2 });
+Container.of("flamethrowers").map(function (s) { return s.toUpperCase() });
