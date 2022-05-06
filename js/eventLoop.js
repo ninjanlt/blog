@@ -23,3 +23,4 @@ setInterval;
 setImmediate;
 UIRender;
 NodeIO;
+Ajax;
