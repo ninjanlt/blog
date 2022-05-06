@@ -17,10 +17,10 @@ MutaionObserver;
 process.nexTick(node);
 
 // 宏任务包含
-script;
 setTimeout;
 setInterval;
 setImmediate;
+requestAnimationFrame;
 UIRender;
 NodeIO;
 Ajax;
