@@ -70,16 +70,25 @@ $ git reflog
 $ git log --graph --pretty=format:"%h %s"
 
 # 仓库区回工作区并删除更改
-$ git reset --hard [commit]
+$ git reset --hard HEAD~1 | [commit]
 # 后悔药，回溯节点保留节点内容
-$ git reset --soft [commit]
-$ git reset --soft HEAD~1
+$ git reset --soft HEAD~1 | [commit]
 # 暂存区回工作区，绿色文件回红色文件
 $ git reset HEAD
 # 仓库区回工作区文件修改后的状态
 $ git reset --mix [commit]
 # 红色文件恢复原始状态
 $ git checkout -- [fileName]
+
+# 恢复当前分支还未跟踪的操作
+$ git checkout .
+$ git restore .
+$ git restore [filename]
+# 新增文件后想要清空还未跟踪的文件
+$ git clean -dn
+$ git clean -df
+# 文件已被跟踪状态下回到工作区
+$ git restore --staged [filename]
 ```
 
 ```bash
@@ -101,7 +110,7 @@ $ git branch -a
 # 列出所有远程分支
 $ git branch -r
 # 删除本地分支
-$ git branch -d [branch-name]
+$ git branch -D [branch-name]
 # 新建一个分支，并切换到该分支
 $ git checkout -b dev origin/dev
 # 创建一个远程分支
@@ -122,13 +131,21 @@ $ git switch -c dev
 $ git switch dev
 ```
 
+---
+
+#### 临时存储
+- 当切换分支并不想进行 `commit` 操作时可以使用，将当前的工作区修改进行 "储藏" 压入栈中
 ```bash
-# 当切换分支并不想进行 commit 操作时可以使用
-# 将当前的工作区修改进行 "储藏" 压入栈中
 $ git stash
 $ git stash save '备注缓存'
-# 当你进行多次 stash 然后解决了问题，想回到原来工作代码环境，你只需要切换到原分支上
-$ git stash pop
+# 当你想进行多次 stash
+$ git stash push -m "last"
+# 弹出记录
+$ git stash apply [index]
+# 弹出记录并删除该条
+$ git stash pop [index]
+# 删除栈中记录
+$ git stash drop [index]
 $ git stash list
 $ git stash clear
 $ git stash show -p
@@ -137,14 +154,21 @@ $ git stash show -p
 ---
 
 #### 合并
-- 切换回主干，将要合并的分支进行 `merge`
+- `Fast-forward` 快进合并仅当主分支上没有新的提交时不会产生新的提交记录
+- 非快进合并，当主分支上有新的记录时采用递归合并策略
 ```bash
 # 合并指定分支到当前分支，别忘记 push 到远端
 $ git merge dev
 # 选择一个 commit 记录，合并进当前分支
 $ git cherry-pick [commit]
-# gitlab 冲突
+# 递归合并
 $ git merge --no-ff -m "merge with no-ff" dev
+# 撤销合并
+$ git reset --hard HEAD~1
+# 将合并的分支记录压缩为单独一条记录
+$ git merge --squash [branchname]
+# 中止当前合并
+$ git merge --abort
 ```
 
 ---
@@ -158,32 +182,18 @@ $ cat [fileName]
 $ vim [fileName]
 # 从远端仓库拉取至本地
 $ git pull origin dev
-# 从远端仓库拉取至版本库，再从版本库拉至本地
-$ git fetch origin [branch]
-$ git merge [origin/branch]
 ```
 
 ---
 
 #### 变基
-
+- 改变基底，将主分支上的新纪录作为基底
 ```bash
-# 单分支下合并多次commit记录
-$ git rebase -i [commit]
-# 单分支下合并多次记录以 HEAD 为基准日志次数
-$ git rebase -i HEAD~3
-# 将两个分支的commit记录合并至一条线
+# 将主分支上最新纪录更新至dev分支
 $ git checkout dev
 $ git rebase main
 $ git checkout main
 $ git merge dev
-```
-- 变基产生冲突
-```bash
-$ vim [fileName]
-$ git status
-$ git add .
-$ git rebase --continue
 ```
 
 ---
@@ -214,21 +224,6 @@ $ git rm HelloWorld.js
 $ git rm /pather/file/HelloWorld.js
 # 删除工作区文件，并且将这次删除放入暂存区
 $ git rm [file1] [file2]
-```
-
----
-
-#### 恢复
-```bash
-# 恢复当前分支还未跟踪的操作
-$ git checkout .
-$ git restore .
-$ git restore [filename]
-# 新增文件后想要清空还未跟踪的文件
-$ git clean -dn
-$ git clean -df
-# 文件已被跟踪状态下回到工作区
-$ git restore --staged [filename]
 ```
 
 ---
