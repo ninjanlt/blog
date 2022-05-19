@@ -50,6 +50,8 @@ $ git config [--global] user.email [email address]
 $ git init
 # 下载一个项目和它的整个代码历史 [Git only]
 $ git clone [url]
+# 绑定远程分支
+$ git remote add orgin [url]
 ```
 - `git status` 监测当前目录文件变化，暂存区与工作区差异，状态红色代表新增或修改原文件
 - `git add .` 将文件添加至暂存区，状态绿色已经管理起来
