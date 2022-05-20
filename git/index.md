@@ -51,7 +51,7 @@ $ git init
 # 下载一个项目和它的整个代码历史 [Git only]
 $ git clone [url]
 # 绑定远程分支
-$ git remote add orgin [url]
+$ git remote add origin [url]
 ```
 - `git status` 监测当前目录文件变化，暂存区与工作区差异，状态红色代表新增或修改原文件
 - `git add .` 将文件添加至暂存区，状态绿色已经管理起来
@@ -81,6 +81,8 @@ $ git reset HEAD
 $ git reset --mix [commit]
 # 红色文件恢复原始状态
 $ git checkout -- [fileName]
+# 重置后落后远程分支强推
+$ git push --force origin [branchname]
 
 # 恢复当前分支还未跟踪的操作
 $ git checkout .
@@ -107,6 +109,9 @@ $ git revert [commit]
 ```bash
 # 列出所有本地分支
 $ git branch
+# 查看更多详细信息
+$ git branch -vv
+$ git remote show origin
 # 列出所有本地分支和远程分支
 $ git branch -a
 # 列出所有远程分支
@@ -122,9 +127,10 @@ $ git checkout dev
 # 重命名分支
 $ git branch -m [branch-name] [new-branch-name]
 # 删除远程分支
-$ git push origin:origin/dev
 $ git push origin --delete [branch-name]
 $ git branch -dr [remote/branch]
+# 创建本地分支与远端分支关联跟踪
+$ git branch --track [new branch] [origin branch]
 ```
 ```bash
 # git2.23+ 新命令切换创建分支
@@ -184,6 +190,8 @@ $ cat [fileName]
 $ vim [fileName]
 # 从远端仓库拉取至本地
 $ git pull origin dev
+# 更新远端未跟踪的分支拉取至本地
+$ git fetch origin
 ```
 
 ---
