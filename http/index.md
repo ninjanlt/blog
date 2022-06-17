@@ -271,7 +271,7 @@ server.listen(8081, () => {
 Content-Disposition: form-data; name="fullname"
 ```
 
-- `application/x-www-from-urlencoded` 只能以键值对的数据格式提交，用于 `GET` 请求
+- `application/x-www-from-urlencoded` 以键值对的数据格式提交
 
 ```
 # Request Payload
