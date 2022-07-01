@@ -263,32 +263,14 @@ server.listen(8081, () => {
 ---
 
 #### 数据格式
-- `multipart/form-data` 表单形式提交，既可以上传键值对也可以上传多个文件
-
-```
-# Request Payload
-------WebKitFormBoundaryBRi81vNtMyBL97Rb
-Content-Disposition: form-data; name="fullname"
-```
-
-- `application/x-www-from-urlencoded` 以键值对的数据格式提交
-
-```
-# Request Payload
-name=tom&age=18
-```
-
-- `raw` 传输
+- `GET, DELETE, HEAD` 方法，参数风格为标准的 `GET` 风格的参数，如 `url?a=1&b=2`
+- `POST, PUT, PATCH, OPTIONS` 方法
+  - `multipart/form-data` 表单形式提交，既可以上传键值对也可以上传多个文件
+  - `application/x-www-from-urlencoded` 以键值对的数据格式提交
   - `application/json` 序列化字符串
   - `text/xml` 以 `xml` 格式传输
   - `text/plain` 数据以纯文本形式进行编码
-
-```
-# JSON
-{"name": "tom", "age": 12}
-```
-
-- `binary` 只可以上传二进制数据 `application/octet-stream` 用来上传文件，一次只能上传一个文件
+  - `binary` 只可以上传二进制数据 `application/octet-stream` 用来上传文件，一次只能上传一个文件
 
 ---
 
