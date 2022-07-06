@@ -107,6 +107,7 @@ module.exports = {
 ---
 
 #### 你需要知道的
+- `node-sass` 安装需要使用淘宝镜像路径 `npm install sass-loader node-sass --sass_binary_site=https://npm.taobao.org/mirrors/node-sass/ -D`
 - `postcss` 项目中我们需要 `webpack` 帮助我们加上 `css` 样式兼容性前缀，实际是通过 `autoprefixer` 插件，但它本身又依赖于 `postcss`
 - `babel` 默认会帮助我们转换 `ES6+` 语法，并不会转换 `ES6+` 特性，`ES6+` 特性需要预设包做支撑
 - `@babel/core` 核心库，所有的 `api` 都在这里，这些 `api` 可供 `babel-loader` 去调用
